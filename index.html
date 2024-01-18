@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDo List</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="todo-app">
+            <h2>To-Do List <img src="./img/icon.png" alt=""></h2>
+            <div class="row">
+                <input type="text" id="input-box" placeholder="Add your text">
+                <button onclick="addTask()">Add</button>
+            </div>
+            <ul id="list-container">
+                {% for task in tasks %}
+                <li>{{ task }} <span onclick="deleteTask({{ loop.index - 1 }})">&times;</span></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <script>
+        function addTask() {
+            var inputBox = document.getElementById('input-box');
+            var task = inputBox.value;
+            if (task.trim() !== '') {
+                fetch('/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'task=' + encodeURIComponent(task),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        location.reload();
+                    }
+                });
+            }
+            inputBox.value = '';
+        }
+
+        function deleteTask(index) {
+            fetch('/delete/' + index)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        location.reload();
+                    }
+                });
+        }
+    </script>
+    <script src="app.js"></script>    
+</body>
+</html>
